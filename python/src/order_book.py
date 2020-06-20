@@ -23,8 +23,8 @@ class OrderBook:
     """
 
     def __init__(self):
-        self.bids = SortedKeyList(key=lambda x: x.price)
-        self.asks = SortedKeyList(key=lambda x: -x.price)
+        self.bids = SortedKeyList(key=lambda x: -x.price)
+        self.asks = SortedKeyList(key=lambda x: x.price)
         self.best_bid: Optional[BaseOrder] = None
         self.best_ask: Optional[BaseOrder] = None
         self.attempt_match = False
@@ -137,12 +137,15 @@ class OrderBook:
 
         if self.best_bid:
             # Cumulative bid volume
-            bids = [self.best_bid.quantity]
-            bids += [bid.quantity for bid in self.bids]
-            bids = np.cumsum(bids)
+            bids = [self.best_bid.quantity] + \
+                [bid.quantity for bid in self.bids]
+            bids = list(np.cumsum(bids))
+            bids.reverse()
             # Bid prices
-            bid_prices = [self.best_bid.price] + \
-                [bid.price for bid in self.bids]
+            bid_prices = [bid.price for bid in self.bids]
+            bid_prices.reverse()
+            bid_prices += [self.best_bid.price]
+
         else:
             bids = []
             bid_prices = []
@@ -151,7 +154,7 @@ class OrderBook:
             # Cumulative ask volume
             asks = [self.best_ask.quantity]
             asks += [ask.quantity for ask in self.asks]
-            asks = np.cumsum(asks)
+            asks = list(np.cumsum(asks))
             # Ask prices
             ask_prices = [self.best_ask.price] + \
                 [ask.price for ask in self.asks]
@@ -165,7 +168,7 @@ class OrderBook:
 
         ax.set_xlim([min(bid_prices),
                      max(ask_prices)])
-        plt.show()
+        plt.savefig("order_book.png")
 
     def plot_executions(self) -> None:
         """ Create a line plot showing historic executions """
@@ -185,5 +188,8 @@ class OrderBook:
                  [t.price for t in self.trades])
 
         ax2.plot(times,
-                 [t.volume for t in self.trades])
-        plt.show()
+                 [t.quantity for t in self.trades])
+
+        ax1.set_xlim([min(times), max(times)])
+        ax2.set_xlim([min(times), max(times)])
+        plt.savefig("executions.png")
