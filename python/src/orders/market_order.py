@@ -1,13 +1,11 @@
 from .base_order import BaseOrder
 from enums import OrderDirection
 from enums import OrderType
+from exceptions import InvalidOrderDirectionException
 
 
 class MarketOrder(BaseOrder):
-    """ A market order tries to execute at a any price.
-
-    We implement it separately to limit orders, though it will
-    fulfill a similar function.
+    """ A market order tries to execute immediately any price.
     """
 
     def __init__(self,
@@ -16,7 +14,15 @@ class MarketOrder(BaseOrder):
                  quantity: int
                  ):
 
+        if order_direction == OrderDirection.buy:
+            price = float("inf")
+        elif order_direction == OrderDirection.sell:
+            price = 0
+        else:
+            raise InvalidOrderDirectionException()
+
         super().__init__(instrument_id=instrument_id,
                          order_direction=order_direction,
                          order_type=OrderType.market,
-                         quantity=quantity)
+                         quantity=quantity,
+                         price=price)

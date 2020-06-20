@@ -1,7 +1,7 @@
 from numpy import datetime64
 
 
-class Trade():
+class Trade:
     """ A concrete class to contain information pertaining to trades.
 
     Attributes:
