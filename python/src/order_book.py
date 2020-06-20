@@ -147,8 +147,7 @@ class OrderBook:
             bid_prices += [self.best_bid.price]
 
         else:
-            bids = []
-            bid_prices = []
+            return None
 
         if self.best_ask:
             # Cumulative ask volume
@@ -159,8 +158,7 @@ class OrderBook:
             ask_prices = [self.best_ask.price] + \
                 [ask.price for ask in self.asks]
         else:
-            asks = []
-            ask_prices = []
+            return None
 
         # Draw
         ax.step(bid_prices, bids, color='green')
