@@ -4,7 +4,6 @@ from enums import OrderStatus
 from abc import ABC
 from trades import Trade
 from typing import List
-from numpy import datetime64
 
 
 class BaseOrder(ABC):
