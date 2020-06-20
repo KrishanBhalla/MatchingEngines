@@ -1,5 +1,5 @@
-from enums import OrderDirection
-from enums import OrderType
+from python.src.enums import OrderDirection
+from python.src.enums import OrderType
 from .base_order import BaseOrder
 
 

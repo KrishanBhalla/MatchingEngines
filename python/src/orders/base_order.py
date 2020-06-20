@@ -1,8 +1,8 @@
-from enums import OrderDirection
-from enums import OrderType
-from enums import OrderStatus
+from python.src.enums import OrderDirection
+from python.src.enums import OrderType
+from python.src.enums import OrderStatus
+from python.src.trades import Trade
 from abc import ABC
-from trades import Trade
 from typing import List
 
 
@@ -46,7 +46,7 @@ class BaseOrder(ABC):
         self.counter += 1
         self.order_id: int = self.counter
         self.fill_info: List[Trade] = []
-        self.status: bool = OrderStatus.live
+        self.status = OrderStatus.live
 
     def update_on_trade(self, trade: Trade) -> None:
         """ On a trade occuring, update the order."""

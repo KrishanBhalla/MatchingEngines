@@ -1,7 +1,7 @@
 from .base_order import BaseOrder
-from enums import OrderDirection
-from enums import OrderType
-from exceptions import InvalidOrderDirectionException
+from python.src.enums import OrderDirection
+from python.src.enums import OrderType
+from python.src.exceptions import InvalidOrderDirectionException
 
 
 class MarketOrder(BaseOrder):

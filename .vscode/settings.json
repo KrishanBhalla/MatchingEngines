@@ -1,7 +1,11 @@
 {
     "python.pythonPath": "/home/krishan/.virtualenvs/matching_engine_env/bin/python",
-    "python.linting.pylintEnabled": true,
-    "python.linting.mypyEnabled": false,
+    "python.linting.pylintEnabled": false,
+    "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "python.testing.pyTestEnabled": true,
+    "python.testing.pytestArgs": [
+        "python/"
+    ]
 }

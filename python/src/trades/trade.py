@@ -10,7 +10,7 @@ class Trade:
     -- quantity -> the number of shares traded.
     """
 
-    def __init__(self, datetime: datetime64, price: float, quantity: quantity):
+    def __init__(self, datetime: datetime64, price: float, quantity: int):
 
         self.datetime = datetime
         self.price = price

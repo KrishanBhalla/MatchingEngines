@@ -1,11 +1,11 @@
+from python.src.orders import BaseOrder
+from python.src.enums import OrderDirection
+from python.src.enums import OrderStatus
+from python.src.exceptions import InvalidOrderDirectionException
+from python.src.trades import Trade
 from sortedcontainers import SortedKeyList
 from typing import Optional, List
-from orders import BaseOrder
-from enums import OrderDirection
-from enums import OrderStatus
-from exceptions import InvalidOrderDirectionException
 import numpy as np
-from trades import Trade
 import matplotlib.pyplot as plt
 
 
