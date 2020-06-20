@@ -18,15 +18,18 @@ class OrderBook:
     --best_bid -> A bid which is first in line to be executed.
     --best_ask -> An ask which is first in line to be executed
     --attempt_match -> A boolean checking whether a match should be attempted.
+    --trades -> A record of all completed crossings.
+    --complete_orders -> A record of completed orders.
     """
 
-    def __init__(self, instrument_id: str):
+    def __init__(self):
         self.bids = SortedKeyList(key=lambda x: x.price)
         self.asks = SortedKeyList(key=lambda x: -x.price)
         self.best_bid: Optional[BaseOrder]
         self.best_ask: Optional[BaseOrder]
         self.attempt_match = False
         self.trades: List[Trade] = []
+        self.complete_orders: List[BaseOrder] = []
 
     def add_bid(self, order: BaseOrder) -> None:
         """ Adding a bid to the order book
@@ -79,12 +82,14 @@ class OrderBook:
 
         If possible, match orders and replace the best bid and best ask
         as needed.
-        Recursively continue matching until you no longer can.
+        Continue matching until you no longer can.
 
         If no match occurs, update so that no match is attempted until
         conditions change.
         """
-        if self.attempt_match and self.best_bid and self.best_ask:
+        while self.attempt_match and self.best_bid and self.best_ask:
+
+            self.attempt_match = False
             best_bid = self.best_bid
             best_ask = self.best_ask
             if best_bid.price >= best_ask.price:
@@ -103,18 +108,22 @@ class OrderBook:
                 self.trades.append(trade)
 
                 if best_bid.status != OrderStatus.live:
+                    self.complete_orders.append(best_bid)
                     if self.bids:
                         self.best_bid = self.bids.pop(0)
+                        self.attempt_match = True
                     else:
                         self.best_bid = None
 
                 if best_ask.status != OrderStatus.live:
+                    self.complete_orders.append(best_ask)
                     if self.asks:
                         self.best_ask = self.asks.pop(0)
+                        self.attempt_match = True
                     else:
                         self.best_ask = None
-                self.match()
-        else:
+            else:
+                break
             self.attempt_match = False
 
     def plot_order_book(self) -> None:
