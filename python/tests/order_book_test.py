@@ -69,3 +69,30 @@ def test_order_book_can_match_orders():
         order_book.complete_orders) == 10, "Test Failed: complete_orders should have all orders"
     assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
     pass
+
+
+def test_order_book_cannot_match_non_crossing_orders():
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy if i % 2 else OrderDirection.sell,
+                               quantity=quantity,
+                               price=price + (-i if i % 2 else i)) for i in range(10)]
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    order_book.match()
+    assert len(order_book.bids) == 4, "Test Failed: There should be 5 bids"
+    assert len(order_book.asks) == 4, "Test Failed: There should be 5 asks"
+    assert order_book.best_bid is not None, "Test Failed: best_bid should not be empty"
+    assert order_book.best_ask is not None, "Test Failed: best_ask should not be empty"
+    assert order_book.best_bid.price <= order_book.best_ask.price, "Test Failed: best prices are not aligned"
+    assert all(order_book.bids[i].price <= order_book.asks[i].price for i in range(4)), \
+        "Test Failed: prices are not aligned"
+    assert not order_book.trades, "Test Failed: trades should be empty"
+    assert not order_book.complete_orders, "Test Failed: complete_orders should be empty"
+    assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
+    pass
