@@ -132,7 +132,7 @@ def test_order_book_can_match_incomplete_more_asks():
 
     assert not order_book.bids, "Test Failed: There should be no bids after this matching"
     assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
-    assert order_book.asks, "Test Failed: There should be asks after incomplete matching"
+    assert not order_book.asks, "Test Failed: There should no asks after this matching"
     assert order_book.best_ask is not None, "Test Failed: best_ask should be empty"
     assert len(
         order_book.trades) > 5, "Test Failed: trades should more than 5 trades"
@@ -159,7 +159,7 @@ def test_order_book_can_match_incomplete_more_bids():
     order_book.match()
     assert not order_book.asks, "Test Failed: There should be no asks after this matching"
     assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
-    assert order_book.bids, "Test Failed: There should be bids after incomplete matching"
+    assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
     assert order_book.best_bid is not None, "Test Failed: best_bid should be empty"
     assert len(
         order_book.trades) > 5, "Test Failed: trades should more than 5 trades"
