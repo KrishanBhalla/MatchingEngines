@@ -25,8 +25,8 @@ class OrderBook:
     def __init__(self):
         self.bids = SortedKeyList(key=lambda x: x.price)
         self.asks = SortedKeyList(key=lambda x: -x.price)
-        self.best_bid: Optional[BaseOrder]
-        self.best_ask: Optional[BaseOrder]
+        self.best_bid: Optional[BaseOrder] = None
+        self.best_ask: Optional[BaseOrder] = None
         self.attempt_match = False
         self.trades: List[Trade] = []
         self.complete_orders: List[BaseOrder] = []
@@ -39,15 +39,14 @@ class OrderBook:
         and update, placing the lower bid price into the book.
         We use bisect right to ensure ordering by time when prices match
         """
-
-        if not self.best_bid:
+        best_bid = self.best_bid
+        if not best_bid:
             self.best_bid = order
             self.attempt_match = True
-        elif order.price <= self.best_bid.price:
-            self.bids.insert(self.bids.bisect_right(order), order)
+        elif order.price <= best_bid.price:
+            self.bids.add(order)
         else:
-            self.bids.insert(self.bids.bisect_right(self.best_bid),
-                             self.best_bid)
+            self.bids.add(best_bid)
             self.best_bid = order
             self.attempt_match = True
 
@@ -58,21 +57,21 @@ class OrderBook:
         else we compare the order with the best ask
         and update, placing the higher ask price into the book.
         """
-        if not self.best_ask:
+        best_ask = self.best_ask
+        if not best_ask:
             self.best_ask = order
             self.attempt_match = True
-        elif order.price >= self.best_ask.price:
-            self.asks.insert(self.bids.bisect_right(order), order)
+        elif order.price >= best_ask.price:
+            self.asks.add(order)
         else:
-            self.asks.insert(self.asks.bisect_right(self.best_ask),
-                             self.best_ask)
+            self.asks.add(best_ask)
             self.best_ask = order
             self.attempt_match = True
 
     def add_order(self, order: BaseOrder) -> None:
         if order.order_direction == OrderDirection.buy:
             self.add_bid(order)
-        elif order.order_direction == OrderDirection.buy:
+        elif order.order_direction == OrderDirection.sell:
             self.add_ask(order)
         else:
             raise InvalidOrderDirectionException()
@@ -124,7 +123,7 @@ class OrderBook:
                         self.best_ask = None
             else:
                 break
-            self.attempt_match = False
+        self.attempt_match = False
 
     def plot_order_book(self) -> None:
         """ Create a line plot showing order book volume and prices"""

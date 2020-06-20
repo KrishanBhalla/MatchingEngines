@@ -54,5 +54,5 @@ class BaseOrder(ABC):
         self.fill_info.append(trade)
         self.unfilled_quantity -= trade.quantity
 
-        if self.unfilled_quantity != 0:
+        if self.unfilled_quantity == 0:
             self.status = OrderStatus.filled
