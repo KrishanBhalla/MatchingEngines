@@ -168,7 +168,7 @@ class OrderBook:
 
         ax.set_xlim([min(bid_prices),
                      max(ask_prices)])
-        plt.savefig("order_book.png")
+        plt.savefig("images/order_book.png")
 
     def plot_executions(self) -> None:
         """ Create a line plot showing historic executions """
@@ -192,4 +192,4 @@ class OrderBook:
 
         ax1.set_xlim([min(times), max(times)])
         ax2.set_xlim([min(times), max(times)])
-        plt.savefig("executions.png")
+        plt.savefig("images/executions.png")
