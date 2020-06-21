@@ -15,12 +15,18 @@ class OrderBook:
 
     Attributes:
     --bids -> A PriorityQueue sorted by price to contain all bids.
+    We use SortedKeyList to enforce ordering and have fast insert + remove operations
     --asks -> A PriorityQueue sorted by price to contain all asks.
+    We use SortedKeyList to enforce ordering and have fast insert + remove operations
     --best_bid -> A bid which is first in line to be executed.
     --best_ask -> An ask which is first in line to be executed
     --attempt_match -> A boolean checking whether a match should be attempted.
-    --trades -> A record of all completed crossings.
+    --trades -> A record of all completed crossings. 
+     This is a dequeus (linked lists) because we require fast (O(1))  access,
+    fast insert, and never need to search the list
     --complete_orders -> A record of completed orders.
+     This is a dequeus (linked lists) because we require fast (O(1))  access,
+    fast insert, and never need to search the list
     """
 
     def __init__(self):

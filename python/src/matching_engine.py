@@ -11,8 +11,12 @@ class MatchingEngine():
 
     Attributes:
     -- order_books -> A dict of order books, one per instrument
-    -- orders -> All orders queued to be processed
+    -- orders -> All orders queued to be processed. 
+    This is a dequeus (linked lists) because we require fast (O(1))  access,
+    fast insert, and never need to search the list
     -- processed_orders -> orders that have been processed
+    This is a (linked lists) because we require fast (O(1)) access,
+    fast insert, and never need to search the list
     -- live -> a switch to stop processing.
     """
 
