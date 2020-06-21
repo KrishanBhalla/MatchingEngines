@@ -106,7 +106,7 @@ def test_matching_engine_can_add_and_process():
     pass
 
 
-def test_matching_engine_can_add_and_process_multiple_instruments():
+def test_matching_engine_can_add_and_match_multiple_instruments():
     instrument_id_1 = "AAPL"
     instrument_id_2 = "MSFT"
     quantity = 100
@@ -126,6 +126,59 @@ def test_matching_engine_can_add_and_process_multiple_instruments():
         matching_engine.add_order(order)
 
     matching_engine.match()
+    order_book = matching_engine.order_books[instrument_id_1]
+
+    assert len(
+        matching_engine.order_books) == 2, "Test Failed: There should be 2 order books"
+    assert not matching_engine.orders, "Test Failed: There should be no orders"
+    assert len(
+        matching_engine.processed_orders) == 20, "Test Failed: There should be 20 processed_orders"
+
+    assert not order_book.bids, "Test Failed: There should be no bids after complete matching"
+    assert not order_book.asks, "Test Failed: There should be no asks after complete matching"
+    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
+    assert len(
+        order_book.trades) == 5, "Test Failed: trades should have 5 orders"
+    assert len(
+        order_book.complete_orders) == 10, "Test Failed: complete_orders should have all orders"
+    assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
+
+    order_book = matching_engine.order_books[instrument_id_2]
+
+    assert not order_book.bids, "Test Failed: There should be no bids after complete matching"
+    assert not order_book.asks, "Test Failed: There should be no asks after complete matching"
+    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
+    assert len(
+        order_book.trades) == 5, "Test Failed: trades should have 5 orders"
+    assert len(
+        order_book.complete_orders) == 10, "Test Failed: complete_orders should have all orders"
+    assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
+    pass
+
+
+def test_matching_engine_can_add_and_run_multiple_instruments():
+    instrument_id_1 = "AAPL"
+    instrument_id_2 = "MSFT"
+    quantity = 100
+    price = 10
+    limit_orders_1 = [LimitOrder(instrument_id=instrument_id_1,
+                                 order_direction=OrderDirection.buy if i % 2 else OrderDirection.sell,
+                                 quantity=quantity,
+                                 price=price + (i if i % 2 else -i)) for i in range(10)]
+    limit_orders_2 = [LimitOrder(instrument_id=instrument_id_2,
+                                 order_direction=OrderDirection.buy if i % 2 else OrderDirection.sell,
+                                 quantity=quantity,
+                                 price=price + (i if i % 2 else -i)) for i in range(10)]
+
+    matching_engine = MatchingEngine()
+
+    for order in limit_orders_1 + limit_orders_2:
+        matching_engine.add_order(order)
+
+    matching_engine.run()
+    matching_engine.live = False
     order_book = matching_engine.order_books[instrument_id_1]
 
     assert len(
