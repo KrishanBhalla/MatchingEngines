@@ -4,6 +4,7 @@ from python.src.enums import OrderStatus
 from python.src.exceptions import InvalidOrderDirectionException
 from python.src.trades import Trade
 from sortedcontainers import SortedKeyList
+from collections import deque
 from typing import Optional, List
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,8 +29,8 @@ class OrderBook:
         self.best_bid: Optional[BaseOrder] = None
         self.best_ask: Optional[BaseOrder] = None
         self.attempt_match = False
-        self.trades: List[Trade] = []
-        self.complete_orders: List[BaseOrder] = []
+        self.trades: deque = deque()
+        self.complete_orders: deque = deque()
 
     def add_bid(self, order: BaseOrder) -> None:
         """ Adding a bid to the order book

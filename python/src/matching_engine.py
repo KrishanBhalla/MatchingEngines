@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import Dict, Type
 from python.src.order_book import OrderBook
 from python.src.orders import BaseOrder
+from collections import deque
 import threading
 import logging
 
@@ -18,14 +19,14 @@ class MatchingEngine():
     def __init__(self):
 
         self.order_books: Dict[str, OrderBook] = {}
-        self.orders: List[BaseOrder] = []
-        self.processed_orders: List[BaseOrder] = []
+        self.orders: deque = deque()
+        self.processed_orders: deque = deque()
         self.live: bool = True
 
     def match(self):
 
         while self.orders:
-            order = self.orders.pop(0)
+            order = self.orders.popleft()
             instrument_id = order.instrument_id
 
             order_books = self.order_books
