@@ -131,7 +131,7 @@ def test_order_book_can_match_incomplete_more_asks():
     order_book.match()
 
     assert not order_book.bids, "Test Failed: There should be no bids after this matching"
-    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert order_book.best_bid is None, "Test Failed: best_bid should not be empty"
     assert not order_book.asks, "Test Failed: There should no asks after this matching"
     assert order_book.best_ask is not None, "Test Failed: best_ask should be empty"
     assert len(
@@ -160,11 +160,44 @@ def test_order_book_can_match_incomplete_more_bids():
     assert not order_book.asks, "Test Failed: There should be no asks after this matching"
     assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
     assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
-    assert order_book.best_bid is not None, "Test Failed: best_bid should be empty"
+    assert order_book.best_bid is not None, "Test Failed: best_bid should not be empty"
     assert len(
         order_book.trades) > 5, "Test Failed: trades should more than 5 trades"
     assert len(
         order_book.complete_orders) < 10, "Test Failed: complete_orders should have fewer than 10 orders"
+    assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
+    pass
+
+
+def test_order_book_can_handle_limit_and_market_orders_together():
+    """ Here there are more asks than bids, so the bids will fill"""
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy,
+                               quantity=quantity - 10 * i,
+                               price=price + i) for i in range(5)]
+
+    market_order = MarketOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.sell,
+                               quantity=400)
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    order_book.add_order(market_order)
+    order_book.match()
+
+    assert not order_book.asks, "Test Failed: There should be no asks after this matching"
+    assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
+    assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
+    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert len(
+        order_book.trades) == 5, "Test Failed: there should be 5 trades"
+    assert len(
+        order_book.complete_orders) == 6, "Test Failed: complete_orders should have 6 orders"
     assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
     pass
 
