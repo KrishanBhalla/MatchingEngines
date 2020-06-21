@@ -6,12 +6,21 @@ import logging
 
 
 class MatchingEngine():
+    """ A concrete class to route orders to the relevant book.
+
+    Attributes:
+    -- order_books -> A dict of order books, one per instrument
+    -- orders -> All orders queued to be processed
+    -- processed_orders -> orders that have been processed
+    -- live -> a switch to stop processing.
+    """
 
     def __init__(self):
 
         self.order_books: Dict[str, OrderBook] = {}
         self.orders: List[BaseOrder] = []
         self.processed_orders: List[BaseOrder] = []
+        self.live: bool = True
 
     def match(self):
 
@@ -36,7 +45,7 @@ class MatchingEngine():
 
     def process(self):
         logging.info("Process: Thread starting")
-        while True:
+        while self.live:
             if self.orders:
                 self.match()
 
