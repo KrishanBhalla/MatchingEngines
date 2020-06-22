@@ -7,8 +7,8 @@ A simple, single threaded matching engine. For each instrument an OrderBook is c
 Mutability is leaned on heavily here.
 
 Performance:
-| Number Of Orders | Total Time (secs) | Time Per Order (microsecs) |
-|------------------|-------------------|----------------------------|
+| Number Of Orders | Total Time (s) | Time Per Order (&mu;s) |
+|------------------|----------------|------------------------|
 |10,000|0.113|11.3|
 |100,000|1.370|13.7|
 |1,000,000|13.5|13.5|
