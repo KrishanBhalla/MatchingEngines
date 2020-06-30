@@ -13,9 +13,12 @@ Performance of matching limit and market orders:
 |100,000|1.20|12.0| 99.85%
 |1,000,000|14.28|14.3| 99.94%
 |5,000,000|74.02|14.8| 99.97%
+
+
 These times include filling each order book.
 The matching engine has all orders pre-loaded into a list, but dispatches them to the relevant order book when "turned on". We 
 measure the time from when it was turned on.
+
 
 Performance of cancelling orders:
 | Number Of Orders | Number Of Cancels | Total Time (s) | Time Per Order-Cancel pair (&mu;s) | Est time per cancel Cancel pair (&mu;s) | Percentage Cancelled |
