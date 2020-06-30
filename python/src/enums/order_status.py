@@ -11,5 +11,5 @@ class OrderStatus(Enum):
     """
     live = auto()
     filled = auto()
-    canceled = auto()
+    cancelled = auto()
     test = auto()

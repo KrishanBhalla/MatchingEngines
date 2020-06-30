@@ -1,10 +1,14 @@
 from python.src.orders import LimitOrder
 from python.src.orders import MarketOrder
+from python.src.orders import CancelOrder
 from python.src.enums import OrderDirection
+from python.src.enums import OrderStatus
 from python.src.matching_engine import MatchingEngine
 import random
 import cProfile
 import pstats
+
+num_orders = 10_000
 
 
 def get_data(n):
@@ -36,14 +40,52 @@ def get_data(n):
                                     random.uniform(-50, 50))
                         for i in range(m//4)]
         output += buy_limits + sell_limits + buy_markets + sell_markets
+        random.shuffle(output)
     return output
 
 
-orders = get_data(100000)
+orders = get_data(num_orders)
 matching_engine = MatchingEngine()
 for order in orders:
     matching_engine.add_order(order)
 # matching_engine.match()
+#  profile
 cProfile.run("matching_engine.match()", "prof_file")
 p = pstats.Stats("prof_file")
-p.strip_dirs().sort_stats(-1).print_stats()
+p.strip_dirs().sort_stats(-1).print_stats(10)
+
+matches = sum(len(o.complete_orders)
+              for o in matching_engine.order_books.values())
+matches / num_orders
+
+
+#  Test cancels
+
+
+orders = get_data(num_orders)
+cancels = [CancelOrder(instrument_id=o.instrument_id,
+                       order_id=o.order_id,
+                       order_direction=o.order_direction)
+           for o in orders]
+orders = orders + cancels
+random.shuffle(orders)
+
+matching_engine = MatchingEngine()
+for order in orders:
+    matching_engine.add_order(order)
+# matching_engine.match()
+
+# Profile
+
+cProfile.run("matching_engine.match()", "prof_file")
+p = pstats.Stats("prof_file")
+p.strip_dirs().sort_stats(-1).print_stats(10)
+
+matches_or_cancels = sum(len(o.complete_orders)
+                         for o in matching_engine.order_books.values())
+
+cancels = sum(len([x for x in o.complete_orders if x.status == OrderStatus.cancelled])
+              for o in matching_engine.order_books.values())
+
+cancels / num_orders
+matches_or_cancels / num_orders

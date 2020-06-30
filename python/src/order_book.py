@@ -1,5 +1,7 @@
 from python.src.orders import BaseOrder
+from python.src.orders import CancelOrder
 from python.src.enums import OrderDirection
+from python.src.enums import OrderType
 from python.src.enums import OrderStatus
 from python.src.exceptions import InvalidOrderDirectionException
 from python.src.trades import Trade
@@ -21,7 +23,7 @@ class OrderBook:
     --best_bid -> A bid which is first in line to be executed.
     --best_ask -> An ask which is first in line to be executed
     --attempt_match -> A boolean checking whether a match should be attempted.
-    --trades -> A record of all completed crossings. 
+    --trades -> A record of all completed crossings.
      This is a dequeus (linked lists) because we require fast (O(1))  access,
     fast insert, and never need to search the list
     --complete_orders -> A record of completed orders.
@@ -75,8 +77,63 @@ class OrderBook:
             self.best_ask = order
             self.attempt_match = True
 
+    def find_in_list(self, orders: List[BaseOrder], order_id: int) -> Optional[BaseOrder]:
+
+        for order in orders:
+            if order.order_id == order_id:
+                return order
+        return None
+
+    def add_cancel(self, order: CancelOrder) -> None:
+        """  Cancelling an existing order
+
+        Check all orders to find the first matching order_id and cancel it if possible.
+        """
+        if order.order_direction == OrderDirection.buy and self.best_bid is not None:
+
+            best_bid = self.best_bid
+            bids = self.bids
+
+            if order.order_id == best_bid.order_id:
+                order.cancel_order(best_bid)
+                self.complete_orders.append(best_bid)
+                if bids:
+                    self.best_bid = bids.pop(0)
+                    self.attempt_match = True
+                else:
+                    self.best_bid = None
+            elif bids:
+                matched_order = self.find_in_list(bids, order.order_id)
+                if matched_order:
+                    bids.remove(matched_order)
+                    self.complete_orders.append(matched_order)
+                    order.cancel_order(matched_order)
+
+        elif order.order_direction == OrderDirection.sell and self.best_ask is not None:
+
+            best_ask = self.best_ask
+            asks = self.asks
+
+            if order.order_id == best_ask.order_id:
+                order.cancel_order(best_ask)
+                self.complete_orders.append(best_ask)
+                if self.asks:
+                    self.best_ask = self.asks.pop(0)
+                    self.attempt_match = True
+                else:
+                    self.best_ask = None
+            elif asks:
+                matched_order = self.find_in_list(asks, order.order_id)
+                if matched_order:
+                    asks.remove(matched_order)
+                    self.complete_orders.append(matched_order)
+                    order.cancel_order(matched_order)
+        return None
+
     def add_order(self, order: BaseOrder) -> None:
-        if order.order_direction == OrderDirection.buy:
+        if order.order_type == OrderType.cancel:
+            self.add_cancel(order)
+        elif order.order_direction == OrderDirection.buy:
             self.add_bid(order)
         elif order.order_direction == OrderDirection.sell:
             self.add_ask(order)
@@ -98,7 +155,8 @@ class OrderBook:
             self.attempt_match = False
             best_bid = self.best_bid
             best_ask = self.best_ask
-            if best_bid.price >= best_ask.price:
+            if (best_bid.price >= best_ask.price):
+
                 execution_price = (best_bid.price +
                                    best_ask.price) / 2
 

@@ -16,7 +16,7 @@ class BaseOrder(ABC):
     Instance Attributes
     -- instrument_id -> A unique identifier for the instrument
     -- order_id -> A unique id defining the order. On cancels this will be referenced.
-    -- order_direction -> whether the order is a Buy, Sell, or Cancel
+    -- order_direction -> whether the order is a Buy or Sell
     -- order_type -> denoting how the order is implemented - limit order, market order etc.
     -- price -> the limit price of the orders. For market orders these may be infinite
     -- quantity -> How many shares to execute.

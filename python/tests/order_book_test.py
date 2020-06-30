@@ -1,6 +1,7 @@
 from python.src.order_book import OrderBook
 from python.src.orders import LimitOrder
 from python.src.orders import MarketOrder
+from python.src.orders import CancelOrder
 from python.src.enums import OrderDirection
 from python.src.enums import OrderDirection
 from python.src.enums import OrderStatus
@@ -157,6 +158,7 @@ def test_order_book_can_match_incomplete_more_bids():
     for order in limit_orders:
         order_book.add_order(order)
     order_book.match()
+
     assert not order_book.asks, "Test Failed: There should be no asks after this matching"
     assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
     assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
@@ -166,6 +168,143 @@ def test_order_book_can_match_incomplete_more_bids():
     assert len(
         order_book.complete_orders) < 10, "Test Failed: complete_orders should have fewer than 10 orders"
     assert not order_book.attempt_match, "Test Failed: attempt_match should be False"
+    pass
+
+
+def test_order_book_can_cancel_buy():
+    """ Here there are more asks than bids, so the bids will fill"""
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy if not i % 2 else OrderDirection.sell,
+                               quantity=quantity - 10 * i,
+                               price=price + (i if not i % 2 else -i)) for i in range(10)]
+    for i, l in enumerate(limit_orders):
+        l.order_id = i
+        limit_orders[i] = l
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    cancel_order = CancelOrder(instrument_id=instrument_id,
+                               order_id=0,
+                               order_direction=OrderDirection.buy)
+    order_book.match()
+    order_book.add_order(cancel_order)
+
+    assert not order_book.asks, "Test Failed: There should be no asks after this matching"
+    assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
+    assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
+    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert len(
+        order_book.trades) > 5, "Test Failed: trades should more than 5 trades"
+    assert len(
+        order_book.complete_orders) == 10, "Test Failed: complete_orders should have 10 orders"
+    assert cancel_order.cancel_success, "Test Failed: cancel should succeed"
+    pass
+
+
+def test_order_book_can_cancel_sell():
+    """ Here there are more asks than bids, so the bids will fill"""
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy if i % 2 else OrderDirection.sell,
+                               quantity=quantity - 10 * i,
+                               price=price + (i if i % 2 else -i)) for i in range(10)]
+    for i, l in enumerate(limit_orders):
+        l.order_id = i
+        limit_orders[i] = l
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    cancel_order = CancelOrder(instrument_id=instrument_id,
+                               order_id=0,
+                               order_direction=OrderDirection.sell)
+    order_book.match()
+    order_book.add_order(cancel_order)
+
+    assert not order_book.asks, "Test Failed: There should be no asks after this matching"
+    assert order_book.best_ask is None, "Test Failed: best_ask should be empty"
+    assert not order_book.bids, "Test Failed: There should be  no bids after this matching"
+    assert order_book.best_bid is None, "Test Failed: best_bid should be empty"
+    assert len(
+        order_book.trades) > 5, "Test Failed: trades should more than 5 trades"
+    assert len(
+        order_book.complete_orders) == 10, "Test Failed: complete_orders should have 10 orders"
+    assert cancel_order.cancel_success, "Test Failed: cancel should succeed"
+    pass
+
+
+def test_order_book_can_cancel_buy_other_than_best_bid():
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy if not i % 2 else OrderDirection.sell,
+                               quantity=quantity - 10 * i,
+                               price=price + (i if not i % 2 else -i)) for i in range(10)]
+    for i, l in enumerate(limit_orders):
+        l.order_id = i
+        limit_orders[i] = l
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    cancel_order = CancelOrder(instrument_id=instrument_id,
+                               order_id=2,
+                               order_direction=OrderDirection.buy)
+    order_book.add_order(cancel_order)
+
+    assert len(
+        order_book.bids) < len(order_book.asks), "Test Failed: should be more sells than buys"
+    assert cancel_order.cancel_success, "Test Failed: cancel should succeed"
+    pass
+
+
+def test_order_book_can_cancel_sell_other_than_best_ask():
+    instrument_id = "AAPL"
+    quantity = 100
+    price = 10
+    limit_orders = [LimitOrder(instrument_id=instrument_id,
+                               order_direction=OrderDirection.buy if i % 2 else OrderDirection.sell,
+                               quantity=quantity - 10 * i,
+                               price=price + (i if i % 2 else -i)) for i in range(10)]
+    for i, l in enumerate(limit_orders):
+        l.order_id = i
+        limit_orders[i] = l
+
+    order_book = OrderBook()
+
+    for order in limit_orders:
+        order_book.add_order(order)
+    cancel_order = CancelOrder(instrument_id=instrument_id,
+                               order_id=2,
+                               order_direction=OrderDirection.sell)
+    order_book.add_order(cancel_order)
+
+    assert len(
+        order_book.bids) > len(order_book.asks), "Test Failed: should be more buys than sells"
+    assert cancel_order.cancel_success, "Test Failed: cancel should succeed"
+    pass
+
+
+def test_order_book_cannot_cancel_nothing():
+    instrument_id = "AAPL"
+    order_book = OrderBook()
+
+    cancel_order = CancelOrder(instrument_id=instrument_id,
+                               order_id=2,
+                               order_direction=OrderDirection.sell)
+    order_book.add_order(cancel_order)
+
+    assert not cancel_order.cancel_success, "Test Failed: cancel should fail"
     pass
 
 
