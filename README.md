@@ -21,7 +21,7 @@ measure the time from when it was turned on.
 
 
 Performance of cancelling orders:
-| Number Of Orders | Number Of Cancels | Total Time (s) | Time Per Order-Cancel pair (&mu;s) | Est time per cancel Cancel pair (&mu;s) | Percentage Cancelled |
+| Number Of Orders | Number Of Cancels | Total Time (s) | Time Per Order-Cancel pair (&mu;s) | Est time per Cancel (&mu;s) | Percentage Cancelled |
 |------------------|----------------|----------------|------------------------| ---------- |---------- |
 |10,000|10,000|0.33|32.5|21.2| 80.13%
 |100,000|100,000|3.37|33.7|21.27| 80.20%
