@@ -84,8 +84,8 @@ p.strip_dirs().sort_stats(-1).print_stats(10)
 matches_or_cancels = sum(len(o.complete_orders)
                          for o in matching_engine.order_books.values())
 
-cancels = sum(len([x for x in o.complete_orders if x.status == OrderStatus.cancelled])
+cancels = sum(len([x for x in o.complete_orders if x.status == OrderStatus.cancelled])  # type: ignore
               for o in matching_engine.order_books.values())
 
-cancels / num_orders
+cancels / num_orders  # type: ignore
 matches_or_cancels / num_orders
